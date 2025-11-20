@@ -9,13 +9,20 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Andres Le',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(colorScheme: .fromSeed(seedColor: Colors.deepPurple)),
+      themeMode: ThemeMode.light,
       home: Scaffold(
+        backgroundColor: Colors.grey[300],
         body: Center(
           child: Column(
             spacing: 50,
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [Text('My date picker'), MyDatePicker()],
+            children: [
+              Text(
+                'My Date Picker',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              MyDatePicker(),
+            ],
           ),
         ),
       ),
