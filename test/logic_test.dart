@@ -19,8 +19,6 @@ void main() {
   test('Test locale weekdays', () {
     final String localeCode = 'vi';
     final symbols = DateFormat.E(localeCode).dateSymbols;
-    List<String> weekdays = symbols.SHORTWEEKDAYS;
-    print('Check var: ${weekdays.first}');
     expect(symbols.FIRSTDAYOFWEEK, 7);
   });
 }

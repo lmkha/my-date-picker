@@ -18,27 +18,16 @@ class DateTable extends StatefulWidget {
 }
 
 class _DateTableState extends State<DateTable> {
-  /// Calculates the number of days in a specific month.
-  ///
-  /// It creates a DateTime for the "0th" day of the next month,
-  /// which Dart interprets as the last day of the current month.
-  ///
-  /// Returns an integer between 28 and 31.
-  int getDaysInMonth(DateTime date) {
-    return DateTime(date.year, date.month + 1, 0).day;
-  }
-
   @override
   Widget build(BuildContext context) {
     final DatePickerModel datePickerModel = context.watch<DatePickerModel>();
-
     List<String> weekdays = DateFormat().dateSymbols.SHORTWEEKDAYS;
     weekdays = [...weekdays.sublist(1), weekdays.first];
     final firstDateOfMonth = widget.type == DateTableType.startDate
         ? datePickerModel.firstDateOfMonthStartChoosing
         : datePickerModel.firstDateOfMonthEndChoosing;
     int indexOfFirstDate = firstDateOfMonth.weekday - 1;
-    final totalDateOfMonth = getDaysInMonth(firstDateOfMonth);
+    final totalDateOfMonth = MyDateUtils.getDaysInMonth(firstDateOfMonth);
     final indextOfLastDate = indexOfFirstDate + totalDateOfMonth - 1;
     final String title = DateFormat('MMM yyyy').format(firstDateOfMonth);
 
@@ -60,7 +49,9 @@ class _DateTableState extends State<DateTable> {
                       ? Alignment.centerLeft
                       : Alignment.centerRight,
                   child: IconButton(
-                    onPressed: () {},
+                    onPressed: widget.type == DateTableType.startDate
+                        ? datePickerModel.swipePreviousMonth
+                        : datePickerModel.swipeNextMonth,
                     icon: Icon(
                       widget.type == DateTableType.startDate
                           ? Icons.arrow_back
@@ -99,39 +90,58 @@ class _DateTableState extends State<DateTable> {
               mainAxisSpacing: 4,
               crossAxisSpacing: 4,
               children: List.generate(42, (index) {
-                String? result;
+                String? text;
                 int day = index - indexOfFirstDate + 1;
                 if (index >= indexOfFirstDate && index <= indextOfLastDate) {
-                  result = day.toString();
+                  text = day.toString();
                 }
 
-                bool isSelected = false;
-
-                if (widget.type == DateTableType.startDate &&
-                    datePickerModel.selectedStartDate != null) {
-                  isSelected = MyDateUtils.isSameDay(
-                    datePickerModel.selectedStartDate,
-                    DateTime(
-                      datePickerModel.firstDateOfMonthStartChoosing.year,
-                      datePickerModel.firstDateOfMonthStartChoosing.month,
-                      day,
-                    ),
+                DateTime? date;
+                if (widget.type == DateTableType.startDate) {
+                  date = DateTime(
+                    datePickerModel.firstDateOfMonthStartChoosing.year,
+                    datePickerModel.firstDateOfMonthStartChoosing.month,
+                    day,
+                  );
+                } else {
+                  date = DateTime(
+                    datePickerModel.firstDateOfMonthEndChoosing.year,
+                    datePickerModel.firstDateOfMonthEndChoosing.month,
+                    day,
                   );
                 }
 
-                if (widget.type == DateTableType.endDate &&
-                    datePickerModel.selectedEndDate != null) {
-                  isSelected = MyDateUtils.isSameDay(
-                    datePickerModel.selectedEndDate,
-                    DateTime(
-                      datePickerModel.firstDateOfMonthEndChoosing.year,
-                      datePickerModel.firstDateOfMonthEndChoosing.month,
-                      day,
-                    ),
-                  );
+                int value = -1;
+                if (datePickerModel.selectedStartDate != null &&
+                    MyDateUtils.isSameDay(
+                      date,
+                      datePickerModel.selectedStartDate!,
+                    )) {
+                  value = 1;
+                }
+                if (datePickerModel.selectedEndDate != null &&
+                    MyDateUtils.isSameDay(
+                      date,
+                      datePickerModel.selectedEndDate!,
+                    )) {
+                  value = 1;
+                }
+                if (datePickerModel.selectedStartDate != null &&
+                    datePickerModel.selectedEndDate != null &&
+                    date.isAfter(datePickerModel.selectedStartDate!) &&
+                    date.isBefore(datePickerModel.selectedEndDate!)) {
+                  value = 0;
                 }
 
-                return DateTableItem(text: result, isSelected: isSelected);
+                return DateTableItem(
+                  text: text,
+                  value: value,
+                  onClick: () {
+                    if (date != null) {
+                      datePickerModel.updateSelectedDate(date);
+                    }
+                  },
+                );
               }),
             ),
           ),

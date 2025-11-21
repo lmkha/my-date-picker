@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_date_picker/date_input/date_input.dart';
 import 'package:my_date_picker/state/date_picker_model.dart';
 import 'package:my_date_picker/date_table/date_table.dart';
 import 'package:my_date_picker/quick_pick_panel/quick_pick_panel.dart';
@@ -71,14 +72,9 @@ class _MyDatePickerState extends State<MyDatePicker> {
                           Row(
                             spacing: 10,
                             children: [
-                              SizedBox(
-                                width: 150,
-                                child: TextField(
-                                  decoration: InputDecoration(
-                                    label: Text('Start date'),
-                                    border: OutlineInputBorder(),
-                                  ),
-                                ),
+                              DateInput(
+                                text: 'Start date',
+                                selectedDate: datePickerModel.selectedStartDate,
                               ),
                               SizedBox(
                                 width: 10,
@@ -88,14 +84,9 @@ class _MyDatePickerState extends State<MyDatePicker> {
                                   color: Colors.black,
                                 ),
                               ),
-                              SizedBox(
-                                width: 150,
-                                child: TextField(
-                                  decoration: InputDecoration(
-                                    label: Text('End date'),
-                                    border: OutlineInputBorder(),
-                                  ),
-                                ),
+                              DateInput(
+                                text: 'End date',
+                                selectedDate: datePickerModel.selectedEndDate,
                               ),
                             ],
                           ),

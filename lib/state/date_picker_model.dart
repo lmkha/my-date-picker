@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 class DatePickerModel extends ChangeNotifier {
   final now = DateTime.now();
@@ -16,35 +15,61 @@ class DatePickerModel extends ChangeNotifier {
     return _selectedStartDate;
   }
 
-  set selectedStartDate(DateTime? newSelectedStartDate) {
-    _selectedStartDate = newSelectedStartDate;
-    notifyListeners();
-  }
-
   DateTime? get selectedEndDate {
     return _selectedEndDate;
-  }
-
-  set selectedEndDate(DateTime? newSelectedEndDate) {
-    _selectedEndDate = newSelectedEndDate;
-    notifyListeners();
   }
 
   DateTime get firstDateOfMonthStartChoosing {
     return _firstDateOfMonthStartChoosing;
   }
 
-  set firstDateOfMonthStartChoosing(DateTime newFirstDateOfMonthStartChoosing) {
-    _firstDateOfMonthStartChoosing = newFirstDateOfMonthStartChoosing;
-    notifyListeners();
-  }
-
   DateTime get firstDateOfMonthEndChoosing {
     return _firstDateOfMonthEndChoosing;
   }
 
-  set firstDateOfMonthEndChoosing(DateTime newFirstDateOfMonthEndChoosing) {
-    _firstDateOfMonthEndChoosing = newFirstDateOfMonthEndChoosing;
+  void updateSelectedDate(DateTime selectedDate) {
+    if (_selectedStartDate != null && _selectedEndDate != null) {
+      _selectedStartDate = selectedDate;
+      _selectedEndDate = null;
+      notifyListeners();
+      return;
+    }
+
+    if (_selectedStartDate == null ||
+        selectedDate.isBefore(_selectedStartDate!)) {
+      _selectedStartDate = selectedDate;
+      notifyListeners();
+      return;
+    }
+    _selectedEndDate = selectedDate;
+    notifyListeners();
+  }
+
+  void swipePreviousMonth() {
+    _firstDateOfMonthStartChoosing = DateTime(
+      _firstDateOfMonthStartChoosing.year,
+      _firstDateOfMonthStartChoosing.month - 1,
+      1,
+    );
+    _firstDateOfMonthEndChoosing = DateTime(
+      _firstDateOfMonthEndChoosing.year,
+      _firstDateOfMonthEndChoosing.month - 1,
+      1,
+    );
+    notifyListeners();
+  }
+
+  void swipeNextMonth() {
+    _firstDateOfMonthStartChoosing = DateTime(
+      _firstDateOfMonthStartChoosing.year,
+      _firstDateOfMonthStartChoosing.month + 1,
+      1,
+    );
+    _firstDateOfMonthEndChoosing = DateTime(
+      _firstDateOfMonthEndChoosing.year,
+      _firstDateOfMonthEndChoosing.month + 1,
+      1,
+    );
     notifyListeners();
   }
 }
