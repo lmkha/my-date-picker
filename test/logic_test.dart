@@ -1,14 +1,26 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/intl.dart';
 
 void main() {
   test('Days in month logic test', () {
-    // Test December 2025
     DateTime dec = DateTime(2025, 12, 15);
 
-    // This creates DateTime(2025, 13, 0) -> Last day of Dec 2025
     int days = DateTime(dec.year, dec.month + 1, 0).day;
 
-    // ...and 'expect' to verify the result automatically.
     expect(days, 31);
+  });
+
+  test('Test week day', () {
+    DateTime date = DateTime(2025, 11, 23);
+
+    expect(date.weekday, 7);
+  });
+
+  test('Test locale weekdays', () {
+    final String localeCode = 'vi';
+    final symbols = DateFormat.E(localeCode).dateSymbols;
+    List<String> weekdays = symbols.SHORTWEEKDAYS;
+    print('Check var: ${weekdays.first}');
+    expect(symbols.FIRSTDAYOFWEEK, 7);
   });
 }
