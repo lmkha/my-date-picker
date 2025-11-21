@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 class DateTableItem extends StatelessWidget {
   final String? text;
   final VoidCallback? onClick;
-  final bool isSelected;
+  final int value;
 
   const DateTableItem({
     super.key,
     this.text,
     this.onClick,
-    required this.isSelected,
+    required this.value,
   });
 
   @override
@@ -21,11 +21,13 @@ class DateTableItem extends StatelessWidget {
       maintainState: true,
       child: SizedBox(
         child: TextButton(
-          onPressed: () {},
+          onPressed: onClick,
           style: ButtonStyle(
             overlayColor: WidgetStateProperty.all(Colors.blue[300]),
             backgroundColor: WidgetStateProperty.all(
-              isSelected ? Colors.blue : Colors.white,
+              value == 1
+                  ? Colors.blue
+                  : (value == 0 ? Colors.blueGrey : Colors.white),
             ),
             shape: WidgetStateProperty.all(
               RoundedRectangleBorder(
