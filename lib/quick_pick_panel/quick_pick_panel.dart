@@ -1,38 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:my_date_picker/app/date_picker_controller.dart';
+import 'package:my_date_picker/quick_pick_panel/quick_pick.dart';
+import 'package:provider/provider.dart';
 
-class QuickPickPanel extends StatefulWidget {
-  final List<String> options = [
-    'Today',
-    'Yesterday',
-    'This week',
-    'Last week',
-    'This month',
-    'Last 7 days',
-    'Last 14 days',
-    'Last 30 days',
-    'Custom',
-  ];
+class QuickPickPanel extends StatelessWidget {
+  final List<QuickPick> quickPickOptions;
 
-  QuickPickPanel({super.key});
+  const QuickPickPanel({super.key, required this.quickPickOptions});
 
-  @override
-  State<StatefulWidget> createState() => _QuickPickPanelState();
-}
-
-class _QuickPickPanelState extends State<QuickPickPanel> {
   @override
   Widget build(BuildContext context) {
+    final DatePickerController datePickerModel = context
+        .watch<DatePickerController>();
+
     return Container(
       color: Colors.blue[300],
       padding: EdgeInsetsGeometry.all(5),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: 2,
-        children: List.generate(widget.options.length, (index) {
+        children: List.generate(quickPickOptions.length, (index) {
+          final quickPick = quickPickOptions[index];
           return Expanded(
             child: TextButton(
-              onPressed: () {},
+              onPressed: quickPick.onClick,
               style: ButtonStyle(
+                backgroundColor: datePickerModel.currentQuickOption == quickPick
+                    ? WidgetStateProperty.all(Colors.white)
+                    : null,
                 overlayColor: WidgetStateProperty.all(Colors.white),
                 shape: WidgetStateProperty.all(
                   RoundedRectangleBorder(
@@ -44,7 +39,7 @@ class _QuickPickPanelState extends State<QuickPickPanel> {
                 ),
               ),
               child: Text(
-                widget.options[index],
+                quickPick.title,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 15,
