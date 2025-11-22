@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:my_date_picker/app/date_picker_controller.dart';
 import 'package:my_date_picker/date_table/date_table_item.dart';
-import 'package:my_date_picker/state/date_picker_model.dart';
 import 'package:my_date_picker/utils/my_date_utils.dart';
 import 'package:provider/provider.dart';
 
@@ -20,12 +20,13 @@ class DateTable extends StatefulWidget {
 class _DateTableState extends State<DateTable> {
   @override
   Widget build(BuildContext context) {
-    final DatePickerModel datePickerModel = context.watch<DatePickerModel>();
+    final DatePickerController datePickerController = context
+        .watch<DatePickerController>();
     List<String> weekdays = DateFormat().dateSymbols.SHORTWEEKDAYS;
     weekdays = [...weekdays.sublist(1), weekdays.first];
     final firstDateOfMonth = widget.type == DateTableType.startDate
-        ? datePickerModel.firstDateOfMonthStartChoosing
-        : datePickerModel.firstDateOfMonthEndChoosing;
+        ? datePickerController.firstDateOfMonthStartChoosing
+        : datePickerController.firstDateOfMonthEndChoosing;
     int indexOfFirstDate = firstDateOfMonth.weekday - 1;
     final totalDateOfMonth = MyDateUtils.getDaysInMonth(firstDateOfMonth);
     final indextOfLastDate = indexOfFirstDate + totalDateOfMonth - 1;
@@ -50,8 +51,8 @@ class _DateTableState extends State<DateTable> {
                       : Alignment.centerRight,
                   child: IconButton(
                     onPressed: widget.type == DateTableType.startDate
-                        ? datePickerModel.swipePreviousMonth
-                        : datePickerModel.swipeNextMonth,
+                        ? datePickerController.swipePreviousMonth
+                        : datePickerController.swipeNextMonth,
                     icon: Icon(
                       widget.type == DateTableType.startDate
                           ? Icons.arrow_back
@@ -98,38 +99,42 @@ class _DateTableState extends State<DateTable> {
 
                 DateTime? date;
                 if (widget.type == DateTableType.startDate) {
-                  date = DateTime(
-                    datePickerModel.firstDateOfMonthStartChoosing.year,
-                    datePickerModel.firstDateOfMonthStartChoosing.month,
-                    day,
+                  date = DateUtils.dateOnly(
+                    DateTime(
+                      datePickerController.firstDateOfMonthStartChoosing.year,
+                      datePickerController.firstDateOfMonthStartChoosing.month,
+                      day,
+                    ),
                   );
                 } else {
-                  date = DateTime(
-                    datePickerModel.firstDateOfMonthEndChoosing.year,
-                    datePickerModel.firstDateOfMonthEndChoosing.month,
-                    day,
+                  date = DateUtils.dateOnly(
+                    DateTime(
+                      datePickerController.firstDateOfMonthEndChoosing.year,
+                      datePickerController.firstDateOfMonthEndChoosing.month,
+                      day,
+                    ),
                   );
                 }
 
                 int value = -1;
-                if (datePickerModel.selectedStartDate != null &&
+                if (datePickerController.selectedStartDate != null &&
                     MyDateUtils.isSameDay(
                       date,
-                      datePickerModel.selectedStartDate!,
+                      datePickerController.selectedStartDate!,
                     )) {
                   value = 1;
                 }
-                if (datePickerModel.selectedEndDate != null &&
+                if (datePickerController.selectedEndDate != null &&
                     MyDateUtils.isSameDay(
                       date,
-                      datePickerModel.selectedEndDate!,
+                      datePickerController.selectedEndDate!,
                     )) {
                   value = 1;
                 }
-                if (datePickerModel.selectedStartDate != null &&
-                    datePickerModel.selectedEndDate != null &&
-                    date.isAfter(datePickerModel.selectedStartDate!) &&
-                    date.isBefore(datePickerModel.selectedEndDate!)) {
+                if (datePickerController.selectedStartDate != null &&
+                    datePickerController.selectedEndDate != null &&
+                    date.isAfter(datePickerController.selectedStartDate!) &&
+                    date.isBefore(datePickerController.selectedEndDate!)) {
                   value = 0;
                 }
 
@@ -138,7 +143,7 @@ class _DateTableState extends State<DateTable> {
                   value: value,
                   onClick: () {
                     if (date != null) {
-                      datePickerModel.updateSelectedDate(date);
+                      datePickerController.updateSelectedDate(date);
                     }
                   },
                 );

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:my_date_picker/app/date_picker_controller.dart';
 import 'package:my_date_picker/date_input/date_input.dart';
-import 'package:my_date_picker/state/date_picker_model.dart';
 import 'package:my_date_picker/date_table/date_table.dart';
 import 'package:my_date_picker/quick_pick_panel/quick_pick_panel.dart';
 import 'package:provider/provider.dart';
@@ -15,7 +15,8 @@ class MyDatePicker extends StatefulWidget {
 class _MyDatePickerState extends State<MyDatePicker> {
   @override
   Widget build(BuildContext context) {
-    final DatePickerModel datePickerModel = context.watch<DatePickerModel>();
+    final DatePickerController datePickerModel = context
+        .watch<DatePickerController>();
 
     return ClipRRect(
       borderRadius: BorderRadiusGeometry.circular(20),
@@ -25,7 +26,11 @@ class _MyDatePickerState extends State<MyDatePicker> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Expanded(child: QuickPickPanel()),
+            Expanded(
+              child: QuickPickPanel(
+                quickPickOptions: datePickerModel.quickPickOption,
+              ),
+            ),
             SizedBox(
               width: 700,
               child: Column(
