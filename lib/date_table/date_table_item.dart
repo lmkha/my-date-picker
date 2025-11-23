@@ -52,10 +52,7 @@ class DateTableItem extends StatelessWidget {
             overlayColor: WidgetStateProperty.all(Colors.blue[300]),
             backgroundColor: WidgetStateProperty.all(backgroundColor),
             shape: WidgetStateProperty.all(
-              RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(5),
-                side: const BorderSide(color: Colors.black, width: 1),
-              ),
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
             ),
             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
           ),
