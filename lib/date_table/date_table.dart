@@ -19,6 +19,56 @@ class DateTable extends StatefulWidget {
 }
 
 class _DateTableState extends State<DateTable> {
+  DateTime _getItemDate(int day, DatePickerController controller) {
+    DateTime date;
+    if (widget.type == DateTableType.startDate) {
+      date = DateUtils.dateOnly(
+        DateTime(
+          controller.firstDateOfMonthStartChoosing.year,
+          controller.firstDateOfMonthStartChoosing.month,
+          day,
+        ),
+      );
+    } else {
+      date = DateUtils.dateOnly(
+        DateTime(
+          controller.firstDateOfMonthEndChoosing.year,
+          controller.firstDateOfMonthEndChoosing.month,
+          day,
+        ),
+      );
+    }
+    return date;
+  }
+
+  ItemPosition _getItemPosition(
+    DateTime date,
+    DatePickerController controller,
+  ) {
+    ItemPosition position = ItemPosition.outside;
+    if (controller.selectedStartDate != null &&
+        MyDateUtils.isSameDay(date, controller.selectedStartDate!)) {
+      position = ItemPosition.at;
+    }
+
+    if (controller.selectedEndDate != null &&
+        MyDateUtils.isSameDay(date, controller.selectedEndDate!)) {
+      position = ItemPosition.at;
+    }
+
+    if (controller.selectedStartDate != null &&
+        controller.selectedEndDate != null &&
+        date.isAfter(controller.selectedStartDate!) &&
+        date.isBefore(controller.selectedEndDate!)) {
+      position = ItemPosition.between;
+    }
+
+    if (MyDateUtils.isSameDay(date, DateUtils.dateOnly(DateTime.now()))) {
+      position = ItemPosition.today;
+    }
+    return position;
+  }
+
   @override
   Widget build(BuildContext context) {
     final DatePickerController datePickerController = context
@@ -98,64 +148,16 @@ class _DateTableState extends State<DateTable> {
                   text = day.toString();
                 }
 
-                DateTime? date;
-                if (widget.type == DateTableType.startDate) {
-                  date = DateUtils.dateOnly(
-                    DateTime(
-                      datePickerController.firstDateOfMonthStartChoosing.year,
-                      datePickerController.firstDateOfMonthStartChoosing.month,
-                      day,
-                    ),
-                  );
-                } else {
-                  date = DateUtils.dateOnly(
-                    DateTime(
-                      datePickerController.firstDateOfMonthEndChoosing.year,
-                      datePickerController.firstDateOfMonthEndChoosing.month,
-                      day,
-                    ),
-                  );
-                }
-
-                ItemPosition position = ItemPosition.outside;
-                if (datePickerController.selectedStartDate != null &&
-                    MyDateUtils.isSameDay(
-                      date,
-                      datePickerController.selectedStartDate!,
-                    )) {
-                  position = ItemPosition.at;
-                }
-
-                if (datePickerController.selectedEndDate != null &&
-                    MyDateUtils.isSameDay(
-                      date,
-                      datePickerController.selectedEndDate!,
-                    )) {
-                  position = ItemPosition.at;
-                }
-
-                if (datePickerController.selectedStartDate != null &&
-                    datePickerController.selectedEndDate != null &&
-                    date.isAfter(datePickerController.selectedStartDate!) &&
-                    date.isBefore(datePickerController.selectedEndDate!)) {
-                  position = ItemPosition.between;
-                }
-
-                if (MyDateUtils.isSameDay(
+                DateTime date = _getItemDate(day, datePickerController);
+                ItemPosition position = _getItemPosition(
                   date,
-                  DateUtils.dateOnly(DateTime.now()),
-                )) {
-                  position = ItemPosition.today;
-                }
+                  datePickerController,
+                );
 
                 return DateTableItem(
                   text: text,
                   position: position,
-                  onClick: () {
-                    if (date != null) {
-                      datePickerController.updateSelectedDate(date);
-                    }
-                  },
+                  onClick: () => datePickerController.updateSelectedDate(date),
                 );
               }),
             ),
