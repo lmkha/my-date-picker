@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_date_picker/my_date_picker/my_date_picker_result.dart';
 import 'package:my_date_picker/quick_pick_panel/quick_pick.dart';
 import 'package:my_date_picker/quick_pick_panel/quick_pick_option.dart';
 import 'package:my_date_picker/utils/my_date_utils.dart';
@@ -74,6 +75,15 @@ class DatePickerController extends ChangeNotifier {
     return _currentQuickPick;
   }
 
+  MyDatePickerResult? get result {
+    if (_selectedStartDate == null) return null;
+    if (_selectedEndDate == null) return null;
+    return MyDatePickerResult(
+      startDate: _selectedStartDate!,
+      endDate: _selectedEndDate!,
+    );
+  }
+
   void updateSelectedDate(DateTime selectedDate) {
     _currentQuickPick = null;
 
@@ -122,10 +132,36 @@ class DatePickerController extends ChangeNotifier {
     notifyListeners();
   }
 
+  void _refreshFirstDayOfMonthChoosing() {
+    if (_selectedStartDate == null || _selectedEndDate == null) return;
+
+    _firstDateOfMonthEndChoosing = DateTime(
+      _selectedEndDate!.year,
+      _selectedEndDate!.month,
+      1,
+    );
+
+    if (_selectedStartDate!.year == _selectedEndDate!.year &&
+        _selectedStartDate!.month == _selectedEndDate!.month) {
+      _firstDateOfMonthStartChoosing = DateTime(
+        _firstDateOfMonthEndChoosing.year,
+        _firstDateOfMonthEndChoosing.month - 1,
+        1,
+      );
+    } else {
+      _firstDateOfMonthStartChoosing = DateTime(
+        _selectedStartDate!.year,
+        _selectedStartDate!.month,
+        1,
+      );
+    }
+  }
+
   void _hanleQuickPickToday() {
     _currentQuickPick = _quickPicksMap[QuickPickOption.today];
     _selectedStartDate = DateUtils.dateOnly(DateTime.now());
     _selectedEndDate = _selectedStartDate;
+    _refreshFirstDayOfMonthChoosing();
     notifyListeners();
   }
 
@@ -135,6 +171,7 @@ class DatePickerController extends ChangeNotifier {
     final date = DateTime(today.year, today.month, today.day - 1);
     _selectedStartDate = date;
     _selectedEndDate = date;
+    _refreshFirstDayOfMonthChoosing();
     notifyListeners();
   }
 
@@ -154,6 +191,7 @@ class DatePickerController extends ChangeNotifier {
       today.month,
       today.day + noDayToSunday,
     );
+    _refreshFirstDayOfMonthChoosing();
     notifyListeners();
   }
 
@@ -174,6 +212,7 @@ class DatePickerController extends ChangeNotifier {
           noDayToMonday -
           DateTime.daysPerWeek, // The Monday of prevous week
     );
+    _refreshFirstDayOfMonthChoosing();
     notifyListeners();
   }
 
@@ -186,6 +225,7 @@ class DatePickerController extends ChangeNotifier {
       today.month,
       MyDateUtils.getDaysInMonth(today),
     );
+    _refreshFirstDayOfMonthChoosing();
     notifyListeners();
   }
 
@@ -194,6 +234,7 @@ class DatePickerController extends ChangeNotifier {
     final DateTime today = DateUtils.dateOnly(DateTime.now());
     _selectedStartDate = DateTime(today.year, today.month, today.day - 7);
     _selectedEndDate = today;
+    _refreshFirstDayOfMonthChoosing();
     notifyListeners();
   }
 
@@ -202,6 +243,7 @@ class DatePickerController extends ChangeNotifier {
     final DateTime today = DateUtils.dateOnly(DateTime.now());
     _selectedEndDate = today;
     _selectedStartDate = DateTime(today.year, today.month, today.day - 30);
+    _refreshFirstDayOfMonthChoosing();
     notifyListeners();
   }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:my_date_picker/app/date_picker_controller.dart';
+import 'package:my_date_picker/date_table/item_position.dart';
+import 'package:my_date_picker/my_date_picker/date_picker_controller.dart';
 import 'package:my_date_picker/date_table/date_table_item.dart';
 import 'package:my_date_picker/utils/my_date_utils.dart';
 import 'package:provider/provider.dart';
@@ -116,31 +117,40 @@ class _DateTableState extends State<DateTable> {
                   );
                 }
 
-                int value = -1;
+                ItemPosition position = ItemPosition.outside;
                 if (datePickerController.selectedStartDate != null &&
                     MyDateUtils.isSameDay(
                       date,
                       datePickerController.selectedStartDate!,
                     )) {
-                  value = 1;
+                  position = ItemPosition.at;
                 }
+
                 if (datePickerController.selectedEndDate != null &&
                     MyDateUtils.isSameDay(
                       date,
                       datePickerController.selectedEndDate!,
                     )) {
-                  value = 1;
+                  position = ItemPosition.at;
                 }
+
                 if (datePickerController.selectedStartDate != null &&
                     datePickerController.selectedEndDate != null &&
                     date.isAfter(datePickerController.selectedStartDate!) &&
                     date.isBefore(datePickerController.selectedEndDate!)) {
-                  value = 0;
+                  position = ItemPosition.between;
+                }
+
+                if (MyDateUtils.isSameDay(
+                  date,
+                  DateUtils.dateOnly(DateTime.now()),
+                )) {
+                  position = ItemPosition.today;
                 }
 
                 return DateTableItem(
                   text: text,
-                  value: value,
+                  position: position,
                   onClick: () {
                     if (date != null) {
                       datePickerController.updateSelectedDate(date);

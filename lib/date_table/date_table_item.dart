@@ -1,19 +1,45 @@
 import 'package:flutter/material.dart';
+import 'package:my_date_picker/date_table/item_position.dart';
 
 class DateTableItem extends StatelessWidget {
   final String? text;
   final VoidCallback? onClick;
-  final int value;
+  final ItemPosition position;
 
   const DateTableItem({
     super.key,
     this.text,
     this.onClick,
-    required this.value,
+    required this.position,
   });
 
   @override
   Widget build(BuildContext context) {
+    Color? backgroundColor = Colors.white;
+    Color? textColor;
+
+    switch (position) {
+      case ItemPosition.at:
+        backgroundColor = Colors.blue[400];
+        textColor = Colors.white;
+        break;
+
+      case ItemPosition.between:
+        backgroundColor = Colors.grey[400];
+        textColor = Colors.black;
+        break;
+
+      case ItemPosition.today:
+        backgroundColor = Colors.blue[100];
+        textColor = Colors.black;
+        break;
+
+      case ItemPosition.outside:
+        backgroundColor = Colors.white;
+        textColor = Colors.black;
+        break;
+    }
+
     return Visibility(
       visible: text != null,
       maintainSize: true,
@@ -24,11 +50,7 @@ class DateTableItem extends StatelessWidget {
           onPressed: onClick,
           style: ButtonStyle(
             overlayColor: WidgetStateProperty.all(Colors.blue[300]),
-            backgroundColor: WidgetStateProperty.all(
-              value == 1
-                  ? Colors.blue
-                  : (value == 0 ? Colors.blueGrey : Colors.white),
-            ),
+            backgroundColor: WidgetStateProperty.all(backgroundColor),
             shape: WidgetStateProperty.all(
               RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(5),
@@ -42,7 +64,7 @@ class DateTableItem extends StatelessWidget {
             style: TextStyle(
               fontWeight: FontWeight.w300,
               fontSize: 15,
-              color: Colors.black,
+              color: textColor,
             ),
           ),
         ),
