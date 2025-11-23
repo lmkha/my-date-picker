@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:my_date_picker/app/date_picker_controller.dart';
-import 'package:my_date_picker/quick_pick_panel/quick_pick.dart';
+import 'package:my_date_picker/my_date_picker/date_picker_controller.dart';
 import 'package:provider/provider.dart';
 
 class QuickPickPanel extends StatelessWidget {
-  final List<QuickPick> quickPickOptions;
-
-  const QuickPickPanel({super.key, required this.quickPickOptions});
+  const QuickPickPanel({super.key});
 
   @override
   Widget build(BuildContext context) {
     final DatePickerController datePickerModel = context
         .watch<DatePickerController>();
+    final quickPickOptions = datePickerModel.quickPickOption;
 
     return Container(
       color: Colors.blue[300],

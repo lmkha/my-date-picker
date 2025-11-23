@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:my_date_picker/app/date_picker_controller.dart';
-import 'package:my_date_picker/app/my_date_picker.dart';
-import 'package:provider/provider.dart';
+import 'package:my_date_picker/my_date_picker/my_date_picker.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -23,10 +21,7 @@ class MyApp extends StatelessWidget {
                 'My Date Picker',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
-              ChangeNotifierProvider(
-                create: (context) => DatePickerController(),
-                child: MyDatePicker(),
-              ),
+              MyDatePicker(onSelected: (result) => {}),
             ],
           ),
         ),
