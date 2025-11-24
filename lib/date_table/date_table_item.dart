@@ -6,12 +6,7 @@ class DateTableItem extends StatelessWidget {
   final VoidCallback? onClick;
   final ItemPosition position;
 
-  const DateTableItem({
-    super.key,
-    this.text,
-    this.onClick,
-    required this.position,
-  });
+  const DateTableItem({super.key, this.text, this.onClick, required this.position});
 
   @override
   Widget build(BuildContext context) {
@@ -51,18 +46,12 @@ class DateTableItem extends StatelessWidget {
           style: ButtonStyle(
             overlayColor: WidgetStateProperty.all(Colors.blue[300]),
             backgroundColor: WidgetStateProperty.all(backgroundColor),
-            shape: WidgetStateProperty.all(
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-            ),
+            shape: WidgetStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
           ),
           child: Text(
             text ?? '',
-            style: TextStyle(
-              fontWeight: FontWeight.w300,
-              fontSize: 15,
-              color: textColor,
-            ),
+            style: TextStyle(fontWeight: FontWeight.w300, fontSize: 15, color: textColor),
           ),
         ),
       ),

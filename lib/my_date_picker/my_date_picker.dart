@@ -36,24 +36,9 @@ class MyDatePicker extends StatelessWidget {
                           height: 400,
                           child: Row(
                             children: [
-                              Expanded(
-                                child: DateTable(
-                                  selectedDate: controller.selectedStartDate,
-                                  type: DateTableType.startDate,
-                                ),
-                              ),
-                              VerticalDivider(
-                                thickness: 1,
-                                width: 1,
-                                color: Colors.black,
-                                indent: 50,
-                              ),
-                              Expanded(
-                                child: DateTable(
-                                  selectedDate: controller.selectedEndDate,
-                                  type: DateTableType.endDate,
-                                ),
-                              ),
+                              Expanded(child: DateTable(type: DateTableType.startDate)),
+                              VerticalDivider(thickness: 1, width: 1, color: Colors.black, indent: 50),
+                              Expanded(child: DateTable(type: DateTableType.endDate)),
                             ],
                           ),
                         ),
@@ -74,36 +59,25 @@ class MyDatePicker extends StatelessWidget {
                                   children: [
                                     DateInput(
                                       text: 'Start date',
-                                      selectedDate:
-                                          controller.selectedStartDate,
+                                      selectedDate: controller.startDate,
+                                      onCompleted: controller.inputStartDate,
+                                      focusNode: controller.startDateFocus,
                                     ),
-                                    SizedBox(
-                                      width: 10,
-                                      child: Divider(
-                                        thickness: 2,
-                                        height: 2,
-                                        color: Colors.black,
-                                      ),
-                                    ),
+                                    SizedBox(width: 10, child: Divider(thickness: 2, height: 2, color: Colors.black)),
                                     DateInput(
                                       text: 'End date',
-                                      selectedDate: controller.selectedEndDate,
+                                      selectedDate: controller.endDate,
+                                      onCompleted: controller.inputEndDate,
+                                      focusNode: controller.endDateFocus,
                                     ),
                                   ],
                                 ),
                                 Row(
                                   spacing: 10,
                                   children: [
-                                    OutlinedButton(
-                                      onPressed: null,
-                                      child: Text('Cancel'),
-                                    ),
+                                    OutlinedButton(onPressed: null, child: Text('Cancel')),
                                     ElevatedButton(
-                                      onPressed: controller.result != null
-                                          ? () => onSelected?.call(
-                                              controller.result!,
-                                            )
-                                          : null,
+                                      onPressed: controller.result != null ? () => onSelected?.call(controller.result!) : null,
                                       child: Text('Apply'),
                                     ),
                                   ],

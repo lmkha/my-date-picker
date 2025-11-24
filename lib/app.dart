@@ -17,10 +17,7 @@ class MyApp extends StatelessWidget {
             spacing: 50,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                'My Date Picker',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
+              Text('My Date Picker', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
               MyDatePicker(onSelected: (result) => {}),
             ],
           ),
