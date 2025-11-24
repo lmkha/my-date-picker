@@ -4,251 +4,199 @@ import 'package:my_date_picker/quick_pick_panel/quick_pick.dart';
 import 'package:my_date_picker/quick_pick_panel/quick_pick_option.dart';
 import 'package:my_date_picker/utils/my_date_utils.dart';
 
+/// Manages the state of the Date Picker by tracking the selected range and the visual calendar.
+///
+/// This controller is built around 4 key values:
+/// * **Selection State**: `startDate` and `endDate` store what the user has actually picked.
+/// * **Navigation State**: `firstDateMonthStart` and `firstDateOfMonthEnd` track which
+///   months are currently visible to the user, allowing independent scrolling of the two tables.
 class DatePickerController extends ChangeNotifier {
-  final now = DateUtils.dateOnly(DateTime.now());
-  late DateTime? _selectedStartDate = now;
-  late DateTime? _selectedEndDate = now;
-  late DateTime _firstDateOfMonthStartChoosing = DateTime(
-    now.year,
-    now.month - 1,
-    1,
-  );
-  late DateTime _firstDateOfMonthEndChoosing = DateTime(now.year, now.month, 1);
+  DateTime? _startDate;
+  DateTime? _endDate;
+  late DateTime _firstDateOfMonth;
   late final Map<QuickPickOption, QuickPick> _quickPicksMap = {
-    QuickPickOption.today: QuickPick(
-      title: 'Today',
-      onClick: _hanleQuickPickToday,
-    ),
-    QuickPickOption.yesaterday: QuickPick(
-      title: 'Yesterday',
-      onClick: _hanleQuickPickYesaterday,
-    ),
-    QuickPickOption.thisWeek: QuickPick(
-      title: 'This week',
-      onClick: _hanleQuickPickThisWeek,
-    ),
-    QuickPickOption.lastWeek: QuickPick(
-      title: 'Last week',
-      onClick: _hanleQuickPickLastWeek,
-    ),
-    QuickPickOption.thisMonth: QuickPick(
-      title: 'This month',
-      onClick: _hanleQuickPickThisMonth,
-    ),
-    QuickPickOption.last7Days: QuickPick(
-      title: 'Last 7 days',
-      onClick: _hanleQuickPickLast7Days,
-    ),
-    QuickPickOption.last30Days: QuickPick(
-      title: 'Last 30 days',
-      onClick: _hanleQuickPickLast30Days,
-    ),
-    QuickPickOption.custom: QuickPick(
-      title: 'Custom',
-      onClick: _hanleQuickPickCustom,
-    ),
+    QuickPickOption.today: QuickPick(title: 'Today', onClick: _hanleQuickPickToday),
+    QuickPickOption.yesaterday: QuickPick(title: 'Yesterday', onClick: _hanleQuickPickYesaterday),
+    QuickPickOption.thisWeek: QuickPick(title: 'This week', onClick: _hanleQuickPickThisWeek),
+    QuickPickOption.lastWeek: QuickPick(title: 'Last week', onClick: _hanleQuickPickLastWeek),
+    QuickPickOption.thisMonth: QuickPick(title: 'This month', onClick: _hanleQuickPickThisMonth),
+    QuickPickOption.last7Days: QuickPick(title: 'Last 7 days', onClick: _hanleQuickPickLast7Days),
+    QuickPickOption.last30Days: QuickPick(title: 'Last 30 days', onClick: _hanleQuickPickLast30Days),
+    QuickPickOption.custom: QuickPick(title: 'Custom', onClick: _hanleQuickPickCustom),
   };
-
   late QuickPick? _currentQuickPick = _quickPicksMap[QuickPickOption.today];
+  final FocusNode _startDateFocus = FocusNode();
+  final FocusNode _endDateFocus = FocusNode();
 
-  DateTime? get selectedStartDate {
-    return _selectedStartDate;
+  DatePickerController() {
+    _init();
   }
 
-  DateTime? get selectedEndDate {
-    return _selectedEndDate;
-  }
-
-  DateTime get firstDateOfMonthStartChoosing {
-    return _firstDateOfMonthStartChoosing;
-  }
-
-  DateTime get firstDateOfMonthEndChoosing {
-    return _firstDateOfMonthEndChoosing;
-  }
-
-  List<QuickPick> get quickPickOption {
-    return _quickPicksMap.values.toList();
-  }
-
-  QuickPick? get currentQuickOption {
-    return _currentQuickPick;
-  }
-
+  DateTime? get startDate => _startDate;
+  DateTime? get endDate => _endDate;
+  DateTime get firstDateMonthStart => DateTime(_firstDateOfMonth.year, _firstDateOfMonth.month - 1, 1);
+  DateTime get firstDateOfMonthEnd => _firstDateOfMonth;
+  List<QuickPick> get quickPickList => _quickPicksMap.values.toList();
+  QuickPick? get currentQuickPick => _currentQuickPick;
+  FocusNode get startDateFocus => _startDateFocus;
+  FocusNode get endDateFocus => _endDateFocus;
   MyDatePickerResult? get result {
-    if (_selectedStartDate == null) return null;
-    if (_selectedEndDate == null) return null;
-    return MyDatePickerResult(
-      startDate: _selectedStartDate!,
-      endDate: _selectedEndDate!,
-    );
+    if (_startDate == null) return null;
+    if (_endDate == null) return null;
+    return MyDatePickerResult(startDate: _startDate!, endDate: _endDate!);
   }
 
-  void updateSelectedDate(DateTime selectedDate) {
+  void pickDate(DateTime selectedDate) {
     _currentQuickPick = null;
 
-    if (_selectedStartDate != null && _selectedEndDate != null) {
-      _selectedStartDate = selectedDate;
-      _selectedEndDate = null;
+    if (_startDate != null && _endDate != null) {
+      _startDate = selectedDate;
+      _endDate = null;
       notifyListeners();
       return;
     }
 
-    if (_selectedStartDate == null ||
-        selectedDate.isBefore(_selectedStartDate!)) {
-      _selectedStartDate = selectedDate;
+    if (_startDate == null || selectedDate.isBefore(_startDate!)) {
+      _startDate = selectedDate;
       notifyListeners();
       return;
     }
-    _selectedEndDate = selectedDate;
+    _endDate = selectedDate;
     notifyListeners();
   }
 
+  void inputStartDate(DateTime date) {
+    if (_endDate == null || DateUtils.dateOnly(date).isBefore(DateUtils.dateOnly(_endDate!))) {
+      _startDate = date;
+      _firstDateOfMonth = DateTime(date.year, date.month, 1);
+      notifyListeners();
+    }
+  }
+
+  void inputEndDate(DateTime date) {
+    if (_startDate == null || DateUtils.dateOnly(date).isAfter(DateUtils.dateOnly(_startDate!))) {
+      _endDate = date;
+      _firstDateOfMonth = DateTime(date.year, date.month, 1);
+      notifyListeners();
+    }
+  }
+
   void swipePreviousMonth() {
-    _firstDateOfMonthStartChoosing = DateTime(
-      _firstDateOfMonthStartChoosing.year,
-      _firstDateOfMonthStartChoosing.month - 1,
-      1,
-    );
-    _firstDateOfMonthEndChoosing = DateTime(
-      _firstDateOfMonthEndChoosing.year,
-      _firstDateOfMonthEndChoosing.month - 1,
-      1,
-    );
+    _firstDateOfMonth = DateTime(_firstDateOfMonth.year, _firstDateOfMonth.month - 1, 1);
     notifyListeners();
   }
 
   void swipeNextMonth() {
-    _firstDateOfMonthStartChoosing = DateTime(
-      _firstDateOfMonthStartChoosing.year,
-      _firstDateOfMonthStartChoosing.month + 1,
-      1,
-    );
-    _firstDateOfMonthEndChoosing = DateTime(
-      _firstDateOfMonthEndChoosing.year,
-      _firstDateOfMonthEndChoosing.month + 1,
-      1,
-    );
+    _firstDateOfMonth = DateTime(_firstDateOfMonth.year, _firstDateOfMonth.month + 1, 1);
     notifyListeners();
   }
 
-  void _refreshFirstDayOfMonthChoosing() {
-    if (_selectedStartDate == null || _selectedEndDate == null) return;
+  void reset() {
+    final now = DateUtils.dateOnly(DateTime.now());
+    _startDate = null;
+    _endDate = null;
+    _firstDateOfMonth = DateTime(now.year, now.month, 1);
+    notifyListeners();
+  }
 
-    _firstDateOfMonthEndChoosing = DateTime(
-      _selectedEndDate!.year,
-      _selectedEndDate!.month,
-      1,
-    );
-
-    if (_selectedStartDate!.year == _selectedEndDate!.year &&
-        _selectedStartDate!.month == _selectedEndDate!.month) {
-      _firstDateOfMonthStartChoosing = DateTime(
-        _firstDateOfMonthEndChoosing.year,
-        _firstDateOfMonthEndChoosing.month - 1,
-        1,
-      );
-    } else {
-      _firstDateOfMonthStartChoosing = DateTime(
-        _selectedStartDate!.year,
-        _selectedStartDate!.month,
-        1,
-      );
-    }
+  void _init() {
+    final now = DateUtils.dateOnly(DateTime.now());
+    _startDate = now;
+    _endDate = now;
+    _firstDateOfMonth = DateTime(now.year, now.month, 1);
   }
 
   void _hanleQuickPickToday() {
     _currentQuickPick = _quickPicksMap[QuickPickOption.today];
-    _selectedStartDate = DateUtils.dateOnly(DateTime.now());
-    _selectedEndDate = _selectedStartDate;
-    _refreshFirstDayOfMonthChoosing();
+
+    _startDate = DateUtils.dateOnly(DateTime.now());
+    _endDate = _startDate;
+
+    _refreshFirstDateOfMonth();
+
     notifyListeners();
   }
 
   void _hanleQuickPickYesaterday() {
     _currentQuickPick = _quickPicksMap[QuickPickOption.yesaterday];
+
     final DateTime today = DateUtils.dateOnly(DateTime.now());
     final date = DateTime(today.year, today.month, today.day - 1);
-    _selectedStartDate = date;
-    _selectedEndDate = date;
-    _refreshFirstDayOfMonthChoosing();
+    _startDate = date;
+    _endDate = date;
+
+    _refreshFirstDateOfMonth();
+
     notifyListeners();
   }
 
   void _hanleQuickPickThisWeek() {
     _currentQuickPick = _quickPicksMap[QuickPickOption.thisWeek];
+
     final DateTime today = DateUtils.dateOnly(DateTime.now());
-    final weekday = today.weekday;
-    final noDayToMonday = weekday - DateTime.monday;
-    final noDayToSunday = DateTime.sunday - weekday;
-    _selectedStartDate = DateTime(
-      today.year,
-      today.month,
-      today.day - noDayToMonday,
-    );
-    _selectedEndDate = DateTime(
-      today.year,
-      today.month,
-      today.day + noDayToSunday,
-    );
-    _refreshFirstDayOfMonthChoosing();
+    final daysSinceThisMonday = today.weekday - DateTime.monday;
+    final daysToThisSunday = DateTime.sunday - today.weekday;
+    _startDate = DateTime(today.year, today.month, today.day - daysSinceThisMonday);
+    _endDate = DateTime(today.year, today.month, today.day + daysToThisSunday);
+
+    _refreshFirstDateOfMonth();
     notifyListeners();
   }
 
   void _hanleQuickPickLastWeek() {
     _currentQuickPick = _quickPicksMap[QuickPickOption.lastWeek];
+
     final DateTime today = DateUtils.dateOnly(DateTime.now());
-    final weekday = today.weekday;
-    final noDayToMonday = weekday - DateTime.monday;
-    _selectedEndDate = DateTime(
-      today.year,
-      today.month,
-      today.day - noDayToMonday - 1, // The Sunday of previous week
-    );
-    _selectedStartDate = DateTime(
-      today.year,
-      today.month,
-      today.day -
-          noDayToMonday -
-          DateTime.daysPerWeek, // The Monday of prevous week
-    );
-    _refreshFirstDayOfMonthChoosing();
+    final daysSinceLastSunday = today.weekday - DateTime.monday + 1;
+    final daysSinceLastMonday = daysSinceLastSunday + DateTime.daysPerWeek - 1;
+    _endDate = DateTime(today.year, today.month, today.day - daysSinceLastSunday);
+    _startDate = DateTime(today.year, today.month, today.day - daysSinceLastMonday);
+
+    _refreshFirstDateOfMonth();
     notifyListeners();
   }
 
   void _hanleQuickPickThisMonth() {
     _currentQuickPick = _quickPicksMap[QuickPickOption.thisMonth];
+
     final DateTime today = DateUtils.dateOnly(DateTime.now());
-    _selectedStartDate = DateTime(today.year, today.month, 1);
-    _selectedEndDate = DateTime(
-      today.year,
-      today.month,
-      MyDateUtils.getDaysInMonth(today),
-    );
-    _refreshFirstDayOfMonthChoosing();
+    _startDate = DateTime(today.year, today.month, 1);
+    _endDate = DateTime(today.year, today.month, MyDateUtils.getDaysInMonth(today));
+
+    _refreshFirstDateOfMonth();
     notifyListeners();
   }
 
   void _hanleQuickPickLast7Days() {
     _currentQuickPick = _quickPicksMap[QuickPickOption.last7Days];
+
     final DateTime today = DateUtils.dateOnly(DateTime.now());
-    _selectedStartDate = DateTime(today.year, today.month, today.day - 7);
-    _selectedEndDate = today;
-    _refreshFirstDayOfMonthChoosing();
+    _startDate = DateTime(today.year, today.month, today.day - 7);
+    _endDate = today;
+
+    _refreshFirstDateOfMonth();
     notifyListeners();
   }
 
   void _hanleQuickPickLast30Days() {
     _currentQuickPick = _quickPicksMap[QuickPickOption.last30Days];
+
     final DateTime today = DateUtils.dateOnly(DateTime.now());
-    _selectedEndDate = today;
-    _selectedStartDate = DateTime(today.year, today.month, today.day - 30);
-    _refreshFirstDayOfMonthChoosing();
+    _endDate = today;
+    _startDate = DateTime(today.year, today.month, today.day - 30);
+
+    _refreshFirstDateOfMonth();
     notifyListeners();
   }
 
   void _hanleQuickPickCustom() {
     _currentQuickPick = _quickPicksMap[QuickPickOption.custom];
-    notifyListeners();
+    _startDateFocus.requestFocus();
+    reset();
+  }
+
+  void _refreshFirstDateOfMonth() {
+    if (_startDate == null || _endDate == null) return;
+    _firstDateOfMonth = DateTime(_endDate!.year, _endDate!.month, 1);
   }
 }

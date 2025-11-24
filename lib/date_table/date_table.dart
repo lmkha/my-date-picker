@@ -9,9 +9,7 @@ import 'package:provider/provider.dart';
 enum DateTableType { startDate, endDate }
 
 class DateTable extends StatefulWidget {
-  const DateTable({super.key, required this.type, this.selectedDate});
-
-  final DateTime? selectedDate;
+  const DateTable({super.key, required this.type});
   final DateTableType type;
 
   @override
@@ -22,44 +20,24 @@ class _DateTableState extends State<DateTable> {
   DateTime _getItemDate(int day, DatePickerController controller) {
     DateTime date;
     if (widget.type == DateTableType.startDate) {
-      date = DateUtils.dateOnly(
-        DateTime(
-          controller.firstDateOfMonthStartChoosing.year,
-          controller.firstDateOfMonthStartChoosing.month,
-          day,
-        ),
-      );
+      date = DateUtils.dateOnly(DateTime(controller.firstDateMonthStart.year, controller.firstDateMonthStart.month, day));
     } else {
-      date = DateUtils.dateOnly(
-        DateTime(
-          controller.firstDateOfMonthEndChoosing.year,
-          controller.firstDateOfMonthEndChoosing.month,
-          day,
-        ),
-      );
+      date = DateUtils.dateOnly(DateTime(controller.firstDateOfMonthEnd.year, controller.firstDateOfMonthEnd.month, day));
     }
     return date;
   }
 
-  ItemPosition _getItemPosition(
-    DateTime date,
-    DatePickerController controller,
-  ) {
+  ItemPosition _getItemPosition(DateTime date, DatePickerController controller) {
     ItemPosition position = ItemPosition.outside;
-    if (controller.selectedStartDate != null &&
-        MyDateUtils.isSameDay(date, controller.selectedStartDate!)) {
+    if (controller.startDate != null && MyDateUtils.isSameDay(date, controller.startDate!)) {
       position = ItemPosition.at;
     }
 
-    if (controller.selectedEndDate != null &&
-        MyDateUtils.isSameDay(date, controller.selectedEndDate!)) {
+    if (controller.endDate != null && MyDateUtils.isSameDay(date, controller.endDate!)) {
       position = ItemPosition.at;
     }
 
-    if (controller.selectedStartDate != null &&
-        controller.selectedEndDate != null &&
-        date.isAfter(controller.selectedStartDate!) &&
-        date.isBefore(controller.selectedEndDate!)) {
+    if (controller.startDate != null && controller.endDate != null && date.isAfter(controller.startDate!) && date.isBefore(controller.endDate!)) {
       position = ItemPosition.between;
     }
 
@@ -71,14 +49,13 @@ class _DateTableState extends State<DateTable> {
 
   @override
   Widget build(BuildContext context) {
-    final DatePickerController datePickerController = context
-        .watch<DatePickerController>();
+    final DatePickerController datePickerController = context.watch<DatePickerController>();
     List<String> weekdays = DateFormat().dateSymbols.SHORTWEEKDAYS;
     weekdays = [...weekdays.sublist(1), weekdays.first];
     final firstDateOfMonth = widget.type == DateTableType.startDate
-        ? datePickerController.firstDateOfMonthStartChoosing
-        : datePickerController.firstDateOfMonthEndChoosing;
-    int indexOfFirstDate = firstDateOfMonth.weekday - 1;
+        ? datePickerController.firstDateMonthStart
+        : datePickerController.firstDateOfMonthEnd;
+    int indexOfFirstDate = firstDateOfMonth.weekday - DateTime.monday;
     final totalDateOfMonth = MyDateUtils.getDaysInMonth(firstDateOfMonth);
     final indextOfLastDate = indexOfFirstDate + totalDateOfMonth - 1;
     final String title = DateFormat('MMM yyyy').format(firstDateOfMonth);
@@ -97,24 +74,13 @@ class _DateTableState extends State<DateTable> {
               alignment: Alignment.center,
               children: [
                 Align(
-                  alignment: widget.type == DateTableType.startDate
-                      ? Alignment.centerLeft
-                      : Alignment.centerRight,
+                  alignment: widget.type == DateTableType.startDate ? Alignment.centerLeft : Alignment.centerRight,
                   child: IconButton(
-                    onPressed: widget.type == DateTableType.startDate
-                        ? datePickerController.swipePreviousMonth
-                        : datePickerController.swipeNextMonth,
-                    icon: Icon(
-                      widget.type == DateTableType.startDate
-                          ? Icons.arrow_back
-                          : Icons.arrow_forward,
-                    ),
+                    onPressed: widget.type == DateTableType.startDate ? datePickerController.swipePreviousMonth : datePickerController.swipeNextMonth,
+                    icon: Icon(widget.type == DateTableType.startDate ? Icons.arrow_back : Icons.arrow_forward),
                   ),
                 ),
-                Text(
-                  title,
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
+                Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
               ],
             ),
           ),
@@ -126,10 +92,7 @@ class _DateTableState extends State<DateTable> {
               return Expanded(
                 child: Container(
                   alignment: Alignment.center,
-                  child: Text(
-                    weekdays[index],
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-                  ),
+                  child: Text(weekdays[index], style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
                 ),
               );
             }),
@@ -149,16 +112,9 @@ class _DateTableState extends State<DateTable> {
                 }
 
                 DateTime date = _getItemDate(day, datePickerController);
-                ItemPosition position = _getItemPosition(
-                  date,
-                  datePickerController,
-                );
+                ItemPosition position = _getItemPosition(date, datePickerController);
 
-                return DateTableItem(
-                  text: text,
-                  position: position,
-                  onClick: () => datePickerController.updateSelectedDate(date),
-                );
+                return DateTableItem(text: text, position: position, onClick: () => datePickerController.pickDate(date));
               }),
             ),
           ),
