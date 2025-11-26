@@ -20,9 +20,9 @@ class _DateTableState extends State<DateTable> {
   DateTime _getItemDate(int day, DatePickerController controller) {
     DateTime date;
     if (widget.type == DateTableType.startDate) {
-      date = DateUtils.dateOnly(DateTime(controller.firstDateMonthStart.year, controller.firstDateMonthStart.month, day));
+      date = controller.firstDateMonthStart.copyWith(day: day);
     } else {
-      date = DateUtils.dateOnly(DateTime(controller.firstDateOfMonthEnd.year, controller.firstDateOfMonthEnd.month, day));
+      date = controller.firstDateOfMonthEnd.copyWith(day: day);
     }
     return date;
   }

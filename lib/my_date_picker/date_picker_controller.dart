@@ -68,7 +68,7 @@ class DatePickerController extends ChangeNotifier {
   void inputStartDate(DateTime date) {
     if (_endDate == null || DateUtils.dateOnly(date).isBefore(DateUtils.dateOnly(_endDate!))) {
       _startDate = date;
-      _firstDateOfMonth = DateTime(date.year, date.month, 1);
+      _firstDateOfMonth = date.copyWith(day: 1);
       notifyListeners();
     }
   }
@@ -76,7 +76,7 @@ class DatePickerController extends ChangeNotifier {
   void inputEndDate(DateTime date) {
     if (_startDate == null || DateUtils.dateOnly(date).isAfter(DateUtils.dateOnly(_startDate!))) {
       _endDate = date;
-      _firstDateOfMonth = DateTime(date.year, date.month, 1);
+      _firstDateOfMonth = date.copyWith(day: 1);
       notifyListeners();
     }
   }
@@ -92,18 +92,18 @@ class DatePickerController extends ChangeNotifier {
   }
 
   void reset() {
-    final now = DateUtils.dateOnly(DateTime.now());
+    final today = DateUtils.dateOnly(DateTime.now());
     _startDate = null;
     _endDate = null;
-    _firstDateOfMonth = DateTime(now.year, now.month, 1);
+    _firstDateOfMonth = today.copyWith(day: 1);
     notifyListeners();
   }
 
   void _init() {
-    final now = DateUtils.dateOnly(DateTime.now());
-    _startDate = now;
-    _endDate = now;
-    _firstDateOfMonth = DateTime(now.year, now.month, 1);
+    final today = DateUtils.dateOnly(DateTime.now());
+    _startDate = today;
+    _endDate = today;
+    _firstDateOfMonth = today.copyWith(day: 1);
   }
 
   void _hanleQuickPickToday() {
@@ -121,7 +121,7 @@ class DatePickerController extends ChangeNotifier {
     _currentQuickPick = _quickPicksMap[QuickPickOption.yesaterday];
 
     final DateTime today = DateUtils.dateOnly(DateTime.now());
-    final date = DateTime(today.year, today.month, today.day - 1);
+    final date = today.copyWith(day: today.day - 1);
     _startDate = date;
     _endDate = date;
 
@@ -136,8 +136,8 @@ class DatePickerController extends ChangeNotifier {
     final DateTime today = DateUtils.dateOnly(DateTime.now());
     final daysSinceThisMonday = today.weekday - DateTime.monday;
     final daysToThisSunday = DateTime.sunday - today.weekday;
-    _startDate = DateTime(today.year, today.month, today.day - daysSinceThisMonday);
-    _endDate = DateTime(today.year, today.month, today.day + daysToThisSunday);
+    _startDate = today.copyWith(day: today.day - daysSinceThisMonday);
+    _endDate = today.copyWith(day: today.day + daysToThisSunday);
 
     _refreshFirstDateOfMonth();
     notifyListeners();
@@ -149,8 +149,8 @@ class DatePickerController extends ChangeNotifier {
     final DateTime today = DateUtils.dateOnly(DateTime.now());
     final daysSinceLastSunday = today.weekday - DateTime.monday + 1;
     final daysSinceLastMonday = daysSinceLastSunday + DateTime.daysPerWeek - 1;
-    _endDate = DateTime(today.year, today.month, today.day - daysSinceLastSunday);
-    _startDate = DateTime(today.year, today.month, today.day - daysSinceLastMonday);
+    _endDate = today.copyWith(day: today.day - daysSinceLastSunday);
+    _startDate = today.copyWith(day: today.day - daysSinceLastMonday);
 
     _refreshFirstDateOfMonth();
     notifyListeners();
@@ -160,8 +160,8 @@ class DatePickerController extends ChangeNotifier {
     _currentQuickPick = _quickPicksMap[QuickPickOption.thisMonth];
 
     final DateTime today = DateUtils.dateOnly(DateTime.now());
-    _startDate = DateTime(today.year, today.month, 1);
-    _endDate = DateTime(today.year, today.month, MyDateUtils.getDaysInMonth(today));
+    _startDate = today.copyWith(day: 1);
+    _endDate = today.copyWith(day: MyDateUtils.getDaysInMonth(today));
 
     _refreshFirstDateOfMonth();
     notifyListeners();
@@ -171,7 +171,7 @@ class DatePickerController extends ChangeNotifier {
     _currentQuickPick = _quickPicksMap[QuickPickOption.last7Days];
 
     final DateTime today = DateUtils.dateOnly(DateTime.now());
-    _startDate = DateTime(today.year, today.month, today.day - 7);
+    _startDate = today.copyWith(day: today.day - 7);
     _endDate = today;
 
     _refreshFirstDateOfMonth();
@@ -183,7 +183,7 @@ class DatePickerController extends ChangeNotifier {
 
     final DateTime today = DateUtils.dateOnly(DateTime.now());
     _endDate = today;
-    _startDate = DateTime(today.year, today.month, today.day - 30);
+    _startDate = today.copyWith(day: today.day - 30);
 
     _refreshFirstDateOfMonth();
     notifyListeners();
