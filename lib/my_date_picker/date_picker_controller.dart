@@ -14,16 +14,7 @@ class DatePickerController extends ChangeNotifier {
   DateTime? _startDate;
   DateTime? _endDate;
   late DateTime _firstDateOfMonth;
-  late final Map<QuickPickOption, QuickPick> _quickPicksMap = {
-    QuickPickOption.today: QuickPick(title: 'Today', onClick: _hanleQuickPickToday),
-    QuickPickOption.yesaterday: QuickPick(title: 'Yesterday', onClick: _hanleQuickPickYesaterday),
-    QuickPickOption.thisWeek: QuickPick(title: 'This week', onClick: _hanleQuickPickThisWeek),
-    QuickPickOption.lastWeek: QuickPick(title: 'Last week', onClick: _hanleQuickPickLastWeek),
-    QuickPickOption.thisMonth: QuickPick(title: 'This month', onClick: _hanleQuickPickThisMonth),
-    QuickPickOption.last7Days: QuickPick(title: 'Last 7 days', onClick: _hanleQuickPickLast7Days),
-    QuickPickOption.last30Days: QuickPick(title: 'Last 30 days', onClick: _hanleQuickPickLast30Days),
-    QuickPickOption.custom: QuickPick(title: 'Custom', onClick: _hanleQuickPickCustom),
-  };
+  late final Map<QuickPickOption, QuickPick> _quickPicksMap;
   late QuickPick? _currentQuickPick = _quickPicksMap[QuickPickOption.today];
   final FocusNode _startDateFocus = FocusNode();
   final FocusNode _endDateFocus = FocusNode();
@@ -68,17 +59,33 @@ class DatePickerController extends ChangeNotifier {
   void inputStartDate(DateTime date) {
     if (_endDate == null || DateUtils.dateOnly(date).isBefore(DateUtils.dateOnly(_endDate!))) {
       _startDate = date;
-      _firstDateOfMonth = date.copyWith(day: 1);
-      notifyListeners();
+
+      _endDateFocus.requestFocus();
+
+      bool isInCurrentTableView = true;
+      if (date.year != _firstDateOfMonth.year) isInCurrentTableView = false;
+      if (date.month != _firstDateOfMonth.month && date.month != _firstDateOfMonth.month - 1) isInCurrentTableView = false;
+
+      if (isInCurrentTableView == false) {
+        _firstDateOfMonth = date.copyWith(month: date.month + 1, day: 1);
+      }
     }
+    notifyListeners();
   }
 
   void inputEndDate(DateTime date) {
     if (_startDate == null || DateUtils.dateOnly(date).isAfter(DateUtils.dateOnly(_startDate!))) {
       _endDate = date;
-      _firstDateOfMonth = date.copyWith(day: 1);
-      notifyListeners();
+
+      bool isInCurrentTableView = true;
+      if (date.year != _firstDateOfMonth.year) isInCurrentTableView = false;
+      if (date.month != _firstDateOfMonth.month && date.month != _firstDateOfMonth.month - 1) isInCurrentTableView = false;
+
+      if (isInCurrentTableView == false) {
+        _firstDateOfMonth = date.copyWith(day: 1);
+      }
     }
+    notifyListeners();
   }
 
   void swipePreviousMonth() {
@@ -104,6 +111,16 @@ class DatePickerController extends ChangeNotifier {
     _startDate = today;
     _endDate = today;
     _firstDateOfMonth = today.copyWith(day: 1);
+    _quickPicksMap = {
+      QuickPickOption.today: QuickPick(title: 'Today', onClick: _hanleQuickPickToday),
+      QuickPickOption.yesaterday: QuickPick(title: 'Yesterday', onClick: _hanleQuickPickYesaterday),
+      QuickPickOption.thisWeek: QuickPick(title: 'This week', onClick: _hanleQuickPickThisWeek),
+      QuickPickOption.lastWeek: QuickPick(title: 'Last week', onClick: _hanleQuickPickLastWeek),
+      QuickPickOption.thisMonth: QuickPick(title: 'This month', onClick: _hanleQuickPickThisMonth),
+      QuickPickOption.last7Days: QuickPick(title: 'Last 7 days', onClick: _hanleQuickPickLast7Days),
+      QuickPickOption.last30Days: QuickPick(title: 'Last 30 days', onClick: _hanleQuickPickLast30Days),
+      QuickPickOption.custom: QuickPick(title: 'Custom', onClick: _hanleQuickPickCustom),
+    };
   }
 
   void _hanleQuickPickToday() {
