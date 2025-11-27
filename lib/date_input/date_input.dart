@@ -18,7 +18,7 @@ class DateInput extends StatefulWidget {
 class _DateInputState extends State<DateInput> {
   late TextEditingController _controller;
   late FocusNode _effectiveFocusNode;
-  String? _errorText;
+  bool _isError = false;
 
   @override
   void initState() {
@@ -31,9 +31,7 @@ class _DateInputState extends State<DateInput> {
   @override
   void didUpdateWidget(DateInput oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.selectedDate != oldWidget.selectedDate) {
-      _updateText();
-    }
+    _updateText();
   }
 
   void _updateText() {
@@ -56,12 +54,12 @@ class _DateInputState extends State<DateInput> {
 
   void _validateDate(String value) {
     if (value.isEmpty) {
-      setState(() => _errorText = null);
+      setState(() => _isError = false);
       return;
     }
 
     if (value.length < 10) {
-      setState(() => _errorText = null);
+      setState(() => _isError = false);
       return;
     }
 
@@ -70,6 +68,9 @@ class _DateInputState extends State<DateInput> {
       if (date != null) {
         widget.onCompleted?.call(date);
       }
+      setState(() {
+        _isError = (date == null);
+      });
     }
   }
 
@@ -90,10 +91,9 @@ class _DateInputState extends State<DateInput> {
           hintText: MyDateUtils.format,
           hintStyle: const TextStyle(color: Colors.grey),
           floatingLabelBehavior: FloatingLabelBehavior.auto,
-          errorText: _errorText,
+          enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: _isError ? Colors.red : Colors.grey, width: 1.0)),
+          focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: _isError ? Colors.red : Theme.of(context).primaryColor, width: 2.0)),
           border: const OutlineInputBorder(),
-          errorBorder: const OutlineInputBorder(borderSide: BorderSide(color: Colors.red, width: 1.0)),
-          focusedErrorBorder: const OutlineInputBorder(borderSide: BorderSide(color: Colors.red, width: 2.0)),
         ),
       ),
     );
