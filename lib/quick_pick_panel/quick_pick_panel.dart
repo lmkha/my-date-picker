@@ -8,8 +8,7 @@ class QuickPickPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final DatePickerController datePickerModel = context.watch<DatePickerController>();
-    final List<QuickPick> quickPickOptions = datePickerModel.quickPickList;
+    final quickPickOptions = context.read<DatePickerController>().quickPickList;
 
     return Container(
       color: Colors.blue[300],
@@ -20,21 +19,26 @@ class QuickPickPanel extends StatelessWidget {
         children: List.generate(quickPickOptions.length, (index) {
           final QuickPick quickPick = quickPickOptions[index];
           return Expanded(
-            child: TextButton(
-              onPressed: quickPick.onClick,
-              style: ButtonStyle(
-                backgroundColor: datePickerModel.currentQuickPick == quickPick ? WidgetStateProperty.all(Colors.white) : null,
-                overlayColor: WidgetStateProperty.all(Colors.white),
-                shape: WidgetStateProperty.all(
-                  RoundedRectangleBorder(
-                    borderRadius: BorderRadius.only(topLeft: Radius.circular(20), bottomLeft: Radius.circular(20)),
+            child: Selector<DatePickerController, QuickPick?>(
+              selector: (context, controller) => controller.currentQuickPick,
+              builder: (context, currentQuickPick, child) {
+                return TextButton(
+                  onPressed: quickPick.onClick,
+                  style: ButtonStyle(
+                    backgroundColor: currentQuickPick == quickPick ? WidgetStateProperty.all(Colors.white) : null,
+                    overlayColor: WidgetStateProperty.all(Colors.white),
+                    shape: WidgetStateProperty.all(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.only(topLeft: Radius.circular(20), bottomLeft: Radius.circular(20)),
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              child: Text(
-                quickPick.title,
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.black),
-              ),
+                  child: Text(
+                    quickPick.title,
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.black),
+                  ),
+                );
+              },
             ),
           );
         }),
