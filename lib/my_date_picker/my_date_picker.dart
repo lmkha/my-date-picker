@@ -15,8 +15,8 @@ class MyDatePicker extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) => DatePickerController(),
-      child: Consumer<DatePickerController>(
-        builder: (context, controller, child) {
+      child: Builder(
+        builder: (context) {
           return ClipRRect(
             borderRadius: BorderRadiusGeometry.circular(20),
             child: SizedBox(
@@ -25,14 +25,14 @@ class MyDatePicker extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Expanded(child: QuickPickPanel()),
+                  const Expanded(child: QuickPickPanel()),
                   SizedBox(
                     width: 700,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         // Top section
-                        SizedBox(
+                        const SizedBox(
                           height: 400,
                           child: Row(
                             children: [
@@ -43,46 +43,52 @@ class MyDatePicker extends StatelessWidget {
                           ),
                         ),
 
-                        Divider(thickness: 1, height: 1, color: Colors.black),
+                        const Divider(thickness: 1, height: 1, color: Colors.black),
 
                         // Bottom section
                         Expanded(
                           child: Container(
                             color: Colors.white,
-                            padding: EdgeInsetsGeometry.all(10),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Row(
-                                  spacing: 10,
+                            padding: const EdgeInsetsGeometry.all(10),
+                            child: Selector<DatePickerController, ({DateTime? start, DateTime? end})>(
+                              selector: (context, controller) => (start: controller.startDate, end: controller.endDate),
+                              builder: (context, data, child) {
+                                final controller = context.read<DatePickerController>();
+                                return Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
-                                    DateInput(
-                                      text: 'Start date',
-                                      selectedDate: controller.startDate,
-                                      onCompleted: controller.inputStartDate,
-                                      focusNode: controller.startDateFocus,
+                                    Row(
+                                      spacing: 10,
+                                      children: [
+                                        DateInput(
+                                          text: 'Start date',
+                                          selectedDate: data.start,
+                                          onCompleted: controller.inputStartDate,
+                                          focusNode: controller.startDateFocus,
+                                        ),
+                                        const SizedBox(width: 10, child: Divider(thickness: 2, height: 2, color: Colors.black)),
+                                        DateInput(
+                                          text: 'End date',
+                                          selectedDate: data.end,
+                                          onCompleted: controller.inputEndDate,
+                                          focusNode: controller.endDateFocus,
+                                        ),
+                                      ],
                                     ),
-                                    SizedBox(width: 10, child: Divider(thickness: 2, height: 2, color: Colors.black)),
-                                    DateInput(
-                                      text: 'End date',
-                                      selectedDate: controller.endDate,
-                                      onCompleted: controller.inputEndDate,
-                                      focusNode: controller.endDateFocus,
+                                    Row(
+                                      spacing: 10,
+                                      children: [
+                                        const OutlinedButton(onPressed: null, child: Text('Cancel')),
+                                        ElevatedButton(
+                                          onPressed: controller.result != null ? () => onSelected?.call(controller.result!) : null,
+                                          child: const Text('Apply'),
+                                        ),
+                                      ],
                                     ),
                                   ],
-                                ),
-                                Row(
-                                  spacing: 10,
-                                  children: [
-                                    OutlinedButton(onPressed: null, child: Text('Cancel')),
-                                    ElevatedButton(
-                                      onPressed: controller.result != null ? () => onSelected?.call(controller.result!) : null,
-                                      child: Text('Apply'),
-                                    ),
-                                  ],
-                                ),
-                              ],
+                                );
+                              },
                             ),
                           ),
                         ),
